@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 
 type ManagedUser = {
   id: number
+  kodeUser: string // <-- TAMBAHAN 1: Tambahkan tipe data kodeUser
   fullname: string
   email: string
   role: string
@@ -33,10 +34,8 @@ export default function UserManagementPage() {
       
       let result;
       try {
-        // Coba baca respons JSON
         result = await response.json()
       } catch (e) {
-        // Jika respons kosong/HTML, lempar pesan error yang mudah dimengerti
         throw new Error(`Koneksi ke server gagal (Status ${response.status}). Pastikan XAMPP menyala dan cek terminal VS Code.`)
       }
       
@@ -114,7 +113,6 @@ export default function UserManagementPage() {
           </Button>
         </div>
 
-        {/* Pesan Error (Jika Ada) */}
         {error && (
           <div className="mt-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm">
             {error}
@@ -127,6 +125,7 @@ export default function UserManagementPage() {
             <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th className="px-6 py-4 font-semibold">ID</th>
+                <th className="px-6 py-4 font-semibold">AutoNumber</th>
                 <th className="px-6 py-4 font-semibold">Nama lengkap</th>
                 <th className="px-6 py-4 font-semibold">Email</th>
                 <th className="px-6 py-4 font-semibold">Role</th>
@@ -138,16 +137,23 @@ export default function UserManagementPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">Memuat data...</td>
+                  {/* <-- TAMBAHAN 3: colSpan diubah dari 7 jadi 8 karena ada 1 kolom baru */}
+                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500">Memuat data...</td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">Belum ada user.</td>
+                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500">Belum ada user.</td>
                 </tr>
               ) : (
                 users.map((user) => (
                   <tr key={user.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                     <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{user.id}</td>
+                    
+                    {/* <-- TAMBAHAN 4: Menampilkan data kodeUser */}
+                    <td className="px-6 py-4 font-medium text-teal-600 dark:text-teal-400">
+                      {user.kodeUser}
+                    </td>
+                    
                     <td className="px-6 py-4 text-gray-900 dark:text-gray-200">{user.fullname}</td>
                     <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{user.email}</td>
                     <td className="px-6 py-4">

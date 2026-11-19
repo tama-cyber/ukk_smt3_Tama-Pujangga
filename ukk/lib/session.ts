@@ -1,12 +1,11 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { getSecretKey } from "@/lib/secret";
 
-const secretKey = process.env.ADMIN_SESSION_SECRET;
-if (!secretKey) {
-  throw new Error("ADMIN_SESSION_SECRET belum diisi di file .env");
-}
-const secret = new TextEncoder().encode(secretKey);
+const secret = getSecretKey();
+
 const COOKIE_NAME = "session";
+const MAX_AGE = 60 * 60 * 24 * 7; // 7 hari
 
 export type SessionPayload = { userId: number; role: string };
 
@@ -23,16 +22,20 @@ export async function createSession(payload: SessionPayload) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: MAX_AGE,
   });
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
   const token = (await cookies()).get(COOKIE_NAME)?.value;
   if (!token) return null;
+
   try {
     const { payload } = await jwtVerify(token, secret);
-    return { userId: payload.userId as number, role: payload.role as string };
+    return {
+      userId: payload.userId as number,
+      role: payload.role as string,
+    };
   } catch {
     return null;
   }

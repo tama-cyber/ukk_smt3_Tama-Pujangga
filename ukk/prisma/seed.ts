@@ -7,18 +7,26 @@ const prisma = new PrismaClient({
   adapter: new PrismaMariaDb(process.env.DATABASE_URL!),
 });
 
+// Akun admin awal (tidak lagi bergantung pada isi .env)
+const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_PASSWORD = "12345678";
+
 async function main() {
-  const email = (process.env.ADMIN_EMAIL ?? "admin@gmail.com").toLowerCase();
-  const password = process.env.ADMIN_PASSWORD ?? "12345678";
-  const hashed = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
   await prisma.user.upsert({
-    where: { email },
+    where: { email: ADMIN_EMAIL },
     update: { password: hashed, role: "admin" },
-    create: { fullname: "Admin", email, password: hashed, role: "admin" },
+    create: {
+      kodeUser: "ADM000001",
+      fullname: "Admin",
+      email: ADMIN_EMAIL,
+      password: hashed,
+      role: "admin",
+    },
   });
 
-  console.log(`User admin siap: ${email}`);
+  console.log(`User admin siap: ${ADMIN_EMAIL}`);
 }
 
 main()
